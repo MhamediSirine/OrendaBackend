@@ -1,38 +1,33 @@
-import { Employee } from "../models/Employee.js";
-import { sendEmail } from "./email.js";
+import { Admin } from "../models/Admin.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
-export async function AddEmployee(request, response) {
+export async function login(req, res) {
+
+  const { email, password } = req.body;
+
   try {
-    const employee = await Employee.create(request.body);
-    await sendEmail(
-      request.body.email,
-      "Email verification",
-      `the code is : ${request.body.password}`
-    );
-    response.status(200).json("created");
-  } catch (error) {
-    console.log(error);
-    response.status(500).json("errrrrrrrrrreur");
-  }
+    const admin = await Admin.findOne({
+      email,
+    });
 
-}
-export async function login(req,res) {
-    try {
-        const employee= await Employee.findOne({
-            email:req.body.email,
-            password:req.body.password
-        })
-        if(!employee){
-            return res.status(404).json({message:"not found 404"})
-        }
-  
-        
-        const token = jwt.sign({id:employee._id},"signatureToken")
-
-        return res.status(200).json({token:token})
-    } catch (error) {
-
-        res.status(500).json(error)
-        
+    if (!admin) {
+      return res.status(404).json({ message: "not found 404" });
     }
+
+    const correctPassword = await bcrypt.compare(password, admin.password);
+
+    if (correctPassword) {
+      const token = jwt.sign({ id: admin._id }, "signatureToken");
+
+      return res.status(200).json({ token: token });
+
+    } else {
+      return res.status(401).json({message: 'incorrect password'});
+    }
+
+    
+  } catch (error) {
+    res.status(500).json(error);
   }
+}

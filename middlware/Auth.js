@@ -11,11 +11,12 @@ export default async function Auth(req, res, next) {
     console.log(decoded);
 
     var employee = await Employee.findById(decoded.id);
-if(!employee){
-    return res.status(404).json({message:"employee not found"})
-}else{ 
-req.employee = employee;
-next();}
+    if (!employee) {
+      return res.status(404).json({ message: "employee not found" });
+    } else {
+      req.employee = employee;
+      next();
+    }
   } catch (error) {
     return res.status(500).json(error);
   }
