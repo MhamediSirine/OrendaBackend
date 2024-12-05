@@ -11,8 +11,8 @@ app.use(bodyParser.json())
 app.use(cors())
 
 
-app.use("/admin",router)
-app.use("/login",router)
+app.use("/employee",router)
+
 
 
 
