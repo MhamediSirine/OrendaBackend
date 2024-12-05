@@ -1,18 +1,16 @@
-<<<<<<< Updated upstream
 import { Admin } from "../models/Admin.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-
-export async function login(req, res) {
-
-  const { email, password } = req.body;
-=======
 import { response } from "express";
 import { Employee } from "../models/Employee.js";
 import { sendEmail } from "./email.js";
 import User from "../models/User.js"
 import bodyParser from "body-parser";
->>>>>>> Stashed changes
+
+export async function login(req, res) {
+
+  const { email, password } = req.body;
+
 
   try {
     const admin = await Admin.findOne({
@@ -38,9 +36,7 @@ import bodyParser from "body-parser";
   } catch (error) {
     res.status(500).json(error);
   }
-<<<<<<< Updated upstream
 }
-=======
 
   export async function GetUser(req,res){
 
@@ -96,4 +92,3 @@ try{
         }
         
           }
->>>>>>> Stashed changes

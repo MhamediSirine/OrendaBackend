@@ -20,17 +20,14 @@ export const Employee = User.discriminator(
       type: String,
       required: true,
     },
-<<<<<<< Updated upstream
-    
+    check: {        
+      type:[checkSchema]
+    },
       code:{
         type:Number,
         required:false,
-=======
-      check: {        
-        type:[checkSchema]
->>>>>>> Stashed changes
-      }
-    
+     
+      },
   })
-);
+)
 
