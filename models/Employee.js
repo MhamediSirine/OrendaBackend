@@ -9,8 +9,10 @@ const checkSchema = new mongoose.Schema({
   },
   checkout:{
     type: Date
-  
-}
+  },
+  duration:{
+    type:Date
+  }
 })
 
 export const Employee = User.discriminator(

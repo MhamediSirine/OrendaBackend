@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {AddEmployee,login,SendCodeResetPassword,verificatioCode,} from "../controllers/employee.js";
-import {AddEmployee,GetAllUser,GetUser,GetUserBy,login} from "../controllers/admin.js"
+import {GetAllUser,GetUser,GetUserBy} from "../controllers/admin.js"
 
 export const router = Router();
 
