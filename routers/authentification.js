@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {AddEmployee,login,SendCodeResetPassword,verificatioCode,} from "../controllers/employee.js";
-import {GetAllUser,GetUser,GetUserBy} from "../controllers/admin.js"
+import {GetAllUser,GetUser,GetUserBy,loginAdmin} from "../controllers/admin.js"
 
 export const router = Router();
 
@@ -11,5 +11,6 @@ router.post("/resetCode", verificatioCode);
 router.post("/getuser",GetUser);
 router.post("/getallusers",GetAllUser);
 router.post("/getuserby",GetUserBy);
+router.post("/loginadmin",loginAdmin);
 
 export default router

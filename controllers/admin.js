@@ -7,7 +7,7 @@ import { sendEmail } from "./email.js";
 import User from "../models/User.js"
 import bodyParser from "body-parser";
 
-export async function login(req, res) {
+export async function loginAdmin(req, res) {
 
   const { email, password } = req.body;
 
