@@ -4,17 +4,16 @@ import mongoose from "mongoose";
 import cors from 'cors';
 import User from "./models/User.js";
 import {router} from "./routers/authentification.js"
+import {profileRouter} from "./routers/profile.js";
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json())
-app.use(cors())
+app.use(bodyParser.json());
+app.use(cors());
 
 
-app.use("/admin",router)
-app.use("/login",router)
-
-
+app.use("/employee",router);
+app.use("/profile", profileRouter);
 
 
 mongoose
@@ -23,7 +22,6 @@ mongoose
     app.listen(3000, () => {
       console.log("i'm running");
     });
-
   })
   .catch((error) => {
     console.log(error);

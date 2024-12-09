@@ -8,5 +8,11 @@ export const Employee = User.discriminator(
       type: String,
       required: true,
     },
+    
+      code:{
+        type:Number,
+        required:false,
+      }
+    
   })
 );
