@@ -1,12 +1,12 @@
-import { Employee } from "../models/Employee.js";
-import { sendEmail } from "./email.js";
+import {Employee} from "../models/Employee.js";
+import {sendEmail} from "./email.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import User from "../models/User.js";
 
 
 function getRandomFiveDigitNumber() {
-  const randomNumber = Math.floor(10000 + Math.random() * 90000);
-  return randomNumber;
+  return Math.floor(10000 + Math.random() * 90000);
 }
 
 
@@ -74,38 +74,38 @@ export async function login(req, res) {
   }
 }
 
-export async function SendCodeResetPassword(req,res){
+export async function sendPasswordResetCode(req,res){
   const {email}=req.body
-try {
-        const employee = await Employee.findOne({ email });
-        if (!employee) {
-          return res.status(404).json({ message: "User not found" });
-        } else {
-          let randomCode = getRandomFiveDigitNumber();
-          employee.code=randomCode;
-          Employee.create(employee);
-          await sendEmail(
-            req.body.email,
-            "Email verification",
-            `the code is : ${randomCode}`
-          );
-          res.status(200).json({
-            message: "sended",
-          });
-        }
-    
+  try {
+    const employee = await Employee.findOne({ email });
 
-  
-} catch (error) {
-  console.log(error);
-  
-     res.status(500).json(error);
-  
+    if (!employee) {
+      return res.status(404).json({ message: "User not found" });
+    } else {
+      let randomCode = getRandomFiveDigitNumber();
+      employee.code=randomCode;
+      await Employee.create(employee);
+
+      await sendEmail(
+          req.body.email,
+          "Email verification",
+          `the code is : ${randomCode}`
+      );
+      res.status(200).json({
+        message: "sended",
+      });
+    }
+
+
+
+  } catch (error) {
+        console.log(error);
+        res.status(500).json(error);
+  }
+
 }
 
-}
-
-export async function verificatioCode (req,res){
+export async function verifyResetCode (req,res){
   const { email,code } = req.body;
   try {
      const employee = await Employee.findOne({ email });
@@ -113,15 +113,12 @@ export async function verificatioCode (req,res){
           return res.status(404).json({ message: "User not found" });
         } else {
           let resetCode=parseInt(code);
-          if (resetCode==employee.code){
+          if (resetCode===employee.code){
             return res.status(200).json({
               message:"verified"
             })
 
           }
-          console.log(employee);
-          console.log(resetCode);
-          
           
           return res.status(401).json({
             message:"code incorrect"
@@ -135,10 +132,37 @@ export async function verificatioCode (req,res){
 
 }
 
-export async function changePassword(req,res){
-  const{email,newPassword} =req.body
+export async function resetPassword(request, response) {
+  const  { email, newPassword } = request.body;
 
-  
+  const employee = await Employee.findOne({ email });
+
+  if (!employee) return response.status(404).json({ message: "User not found" });
+
+  const cryptedPassword = await bcrypt.hashSync(newPassword, 10);
+
+  await Employee.updateOne({ email }, { $set: { password: cryptedPassword } });
+
+  return response.status(200).json({
+    message: "password updated successfully",
+  })
+}
+
+export async function updateProfile(request, response) {
+  const { name, lastName, adress, password, Image, email } = request.body;
+
+  const user = await User.findOne({ email } );
+
+  if (!user) return response.status(404).json({ message: "User not found" });
+
+  await User.updateOne({email}, { $set: {
+    name, lastName, adress, password, Image
+    } }, { upsert: true });
+
+  return response.status(200).json({
+    message: "updated",
+  })
+
 }
 
 

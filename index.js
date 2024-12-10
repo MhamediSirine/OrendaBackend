@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import cors from 'cors';
 import User from "./models/User.js";
 import {router} from "./routers/authentification.js"
+import {profileRouter} from "./routers/profile.js";
 import checkrouter from "./routers/pointage.js";
 
 const app = express();
@@ -15,6 +16,9 @@ app.use(cors())
 app.use("/employee",router)
 app.use("/auth",router)
 app.use("/check",checkrouter)
+app.use("/profile", profileRouter);
+
+
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/Pointage")
@@ -22,7 +26,6 @@ mongoose
     app.listen(3000, () => {
       console.log("i'm running");
     });
-
   })
   .catch((error) => {
     console.log(error);
