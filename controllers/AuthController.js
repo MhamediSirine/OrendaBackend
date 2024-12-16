@@ -32,13 +32,14 @@ export async function AddEmployee(request, response) {
 
     await sendEmail(
       request.body.email,
-      "Email verification",
-      `the code is : ${request.body.password}`
+      "Orenda account",
+      `Your orenda password : ${request.body.password}`
     );
 
     response.status(200).json({
       message: "created",
     });
+
   } catch (error) {
     console.log(error);
     response.status(500).json({
@@ -62,7 +63,8 @@ export async function login(req, res) {
 
     if (correctPassword) {
       const token = jwt.sign({ id: employee._id }, "signatureToken");
-      return res.status(200).json({ token: token, message: "success ", role: employee.role });
+
+      return res.status(200).json({ token: token, message: "success ", role: employee.role, userData: employee });
     } else {
       return res.status(401).json({ message: "Password incorrect" });
     }
@@ -88,6 +90,7 @@ export async function sendPasswordResetCode(req, res) {
         "Email verification",
         `the code is : ${randomCode}`
       );
+      
       res.status(200).json({
         message: "sended",
       });
@@ -98,68 +101,23 @@ export async function sendPasswordResetCode(req, res) {
   }
 }
 
-export async function verifyResetCode(req, res) {
-  const { email, code } = req.body;
-  try {
-    const employee = await Employee.findOne({ email });
-    if (!employee) {
-      return res.status(404).json({ message: "User not found" });
-    } else {
-      let resetCode = parseInt(code);
-      if (resetCode === employee.code) {
-        return res.status(200).json({
-          message: "verified",
-        });
-      }
-
-      return res.status(401).json({
-        message: "code incorrect",
-      });
-    }
-  } catch (error) {
-    res.status(500).json(error);
-  }
-}
-
-export async function resetPassword(request, response) {
-  const { email, newPassword } = request.body;
+export async function resetEmployeePassword(request, response) {
+  const { email, code, newPassword } = request.body;
 
   const employee = await Employee.findOne({ email });
 
-  if (!employee)
-    return response.status(404).json({ message: "User not found" });
+  if (!employee) return response.status(404).json({ message: "Employee not found" });
 
-  const cryptedPassword = await bcrypt.hashSync(newPassword, 10);
+  if (employee.code !== code) return response.status(400).json({ message: "Reset code is invalid" });
 
-  await Employee.updateOne({ email }, { $set: { password: cryptedPassword } });
+  const hashedPassword = await bcrypt.hashSync(newPassword, 10);
+
+  await Employee.updateOne({ email }, { $set: { password: hashedPassword } });
 
   return response.status(200).json({
-    message: "password updated successfully",
-  });
-}
+    message: "Password has been updated successfully",
+  })
 
-
-export async function handleReset(req, res) {
-  const { email, code, newPassword } = req.body;
-
-  try {
-    const employee = await Employee.findOne({ email });
-
-    if (!employee) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    const resetCode = parseInt(code);
-    if (resetCode !== employee.code) {
-      return res.status(401).json({ message: "Code incorrect" });
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await Employee.updateOne({ email }, { $set: { password: hashedPassword } });
-
-    return res.status(200).json({ message: "Password updated successfully" });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
 }
 
 

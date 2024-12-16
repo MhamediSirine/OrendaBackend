@@ -5,8 +5,11 @@ import bodyParser from "body-parser";
 
 
 export async function checkin(req, res) {
+
+    const { email } = req.body;
+
     try {
-        const employee = await Employee.findById(req.body.id);
+        const employee = await Employee.findOne({ email });
         if (!employee) {
             return res.status(404).json({ message: "Employee not found." });
         }
@@ -17,7 +20,7 @@ export async function checkin(req, res) {
             // Create a new check-in entry if no check history exists or the last entry has a checkout
             employee.check.push({ checkin: Date.now() });
             await employee.save();
-            return res.status(201).json({ message: "New check-in created." });
+            return res.status(200).json({ message: "New check-in created." });
         }
 
         const lastCheck = check.at(-1);
