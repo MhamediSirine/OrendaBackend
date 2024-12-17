@@ -6,7 +6,7 @@ import bodyParser from "body-parser";
 
 export async function checkin(req, res) {
 
-    const { email } = req.body;
+    const { email, latitude, longtitude } = req.body;
 
     try {
         const employee = await Employee.findOne({ email });
@@ -18,7 +18,7 @@ export async function checkin(req, res) {
 
         if (!check || check.length === 0 || check.at(-1).checkout) {
             // Create a new check-in entry if no check history exists or the last entry has a checkout
-            employee.check.push({ checkin: Date.now() });
+            employee.check.push({ checkin: Date.now(), latitude, longtitude });
             await employee.save();
             return res.status(200).json({ message: "New check-in created." });
         }

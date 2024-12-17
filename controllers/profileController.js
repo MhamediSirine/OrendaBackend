@@ -1,21 +1,21 @@
 import { Employee } from "../models/Employee.js";
+import User from "../models/User.js";
 
 
 export async function updateProfile(request, response) {
-  const { name, lastName, adress, password, email } = request.body;
+  const { name, lastName, adress, email } = request.body;
 
-  const user = await Employee.findOne({ email });
+  const user = await User.findOne({ email });
 
   if (!user) return response.status(404).json({ message: "User not found" });
 
-  await Employee.updateOne(
+  await User.updateOne(
     { email },
     {
       $set: {
         name,
         lastName,
         adress,
-        password,
       },
     },
     { upsert: true }

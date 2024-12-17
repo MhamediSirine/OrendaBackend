@@ -12,6 +12,12 @@ const checkSchema = new mongoose.Schema({
   },
   duration:{
     type:Date
+  },
+  latitude: {
+    type: Number,
+  },
+  longtitude: {
+    type: Number,
   }
 })
 
@@ -25,11 +31,6 @@ export const Employee = User.discriminator(
     check: {        
       type:[checkSchema]
     },
-      code:{
-        type:Number,
-        required:false,
-     
-      },
   })
 )
 

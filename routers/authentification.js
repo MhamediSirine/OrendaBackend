@@ -4,15 +4,15 @@ import {
   AddEmployee,
   login,
   sendPasswordResetCode,
-  resetEmployeePassword,
-  loginAdmin,
+  resetEmployeePassword, createAdmin,
 } from "../controllers/AuthController.js";
+import {AuthMiddleware} from "../middlware/Auth.js";
 
 
 export const router = Router();
 
-router.post("/addEmploye", AddEmployee);
-router.post("/loginAdmin", loginAdmin);
+router.post("/addEmploye", AuthMiddleware, AddEmployee);
+router.post("/admin", createAdmin);
 router.post("/login", login);
 router.post("/send-reset-email", sendPasswordResetCode);
 router.post("/handleReset",resetEmployeePassword);

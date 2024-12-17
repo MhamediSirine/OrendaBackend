@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
-import Employee from "../models/Employee.js";
+import User from "../models/User.js";
 
-export default async function Auth(req, res, next) {
+export async function AuthMiddleware(req, res, next) {
   try {
     if (!req.headers.token) {
       return res.status(404).json({ message: "token not found" });
@@ -10,11 +10,10 @@ export default async function Auth(req, res, next) {
     var decoded = jwt.verify(token, "signatureToken");
     console.log(decoded);
 
-    var employee = await Employee.findById(decoded.id);
-    if (!employee) {
+    var user = await User.findById(decoded.id);
+    if (!user) {
       return res.status(404).json({ message: "employee not found" });
     } else {
-      req.employee = employee;
       next();
     }
   } catch (error) {

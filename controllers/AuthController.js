@@ -3,6 +3,8 @@ import { sendEmail } from "./email.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { Admin } from "../models/Admin.js";
+import User from "../models/User.js";
+import {response} from "express";
 
 function getRandomFiveDigitNumber() {
   return Math.floor(10000 + Math.random() * 90000);
@@ -46,91 +48,67 @@ export async function AddEmployee(request, response) {
     });
   }
 }
+
+export async function createAdmin(req, res) {
+  const { name, lastName, adress, email, password, Salaire, experience } = req.body;
+
+  const hashedPassword = await bcrypt.hashSync(password, 10);
+
+  const admin = await Admin.create({
+    name, lastName, adress, email, password: hashedPassword, Salaire, experience,
+  });
+
+  res.status(200).json({
+    message: "admin has been created successfully",
+  })
+
+}
+
 export async function login(req, res) {
   const { email, password } = req.body;
 
-  try {
-    
-    const employee = await Employee.findOne({
-      email,
-    });
+  const user = await User.findOne({ email }).exec();
 
-    if (!employee) {
-      return res.status(404).json({ message: "not found 404" });
-    }
+  if (!user) return res.status(404).json({
+    message: "Did not find any account with given email",
+  })
 
-    let correctPassword = await bcrypt.compare(password, employee.password);
+  let correctPassword = await bcrypt.compare(password, user.password);
 
-    if (correctPassword) {
-      const token = jwt.sign({ id: employee._id }, "signatureToken");
+  if (!correctPassword) return res.status(401).json({
+    message: "Invalid password",
+  });
 
-      return res
-        .status(200)
-        .json({
-          token: token,
-          message: "success ",
-          role: employee.role,
-          userData: employee,
-        });
-    } else {
-      return res.status(401).json({ message: "Password incorrect" });
-    }
-  } catch (error) {
-    res.status(500).json(error);
-  }
-}
-export async function loginAdmin(req, res) {
-  const { email, password } = req.body;
+  const token = jwt.sign({id: user._id}, "signatureToken");
 
-  try {
-    const admin = await Admin.findOne({
-      email,
-    });
+  return res.status(200).json({
+    token, message: "Login Successful", role: user.role, userData: user,
+  })
 
-    if (!admin) {
-      return res.status(404).json({ message: "not found 404" });
-    }
-
-    let correctPassword = await bcrypt.compare(password, admin.password);
-
-    if (correctPassword) {
-      const token = jwt.sign({ id: admin._id }, "signatureToken");
-
-      return res.status(200).json({
-        token: token,
-        message: "success ",
-        role: admin.role,
-        userData: admin,
-      });
-    } else {
-      return res.status(401).json({ message: "Password incorrect" });
-    }
-  } catch (error) {
-    res.status(500).json(error);
-  }
 }
 
 
 export async function sendPasswordResetCode(req, res) {
   const { email } = req.body;
   try {
-    const employee = await Employee.findOne({ email });
+    const user = await User.findOne({ email });
 
-    if (!employee) {
+    if (!user) {
       return res.status(404).json({ message: "User not found" });
     } else {
       let randomCode = getRandomFiveDigitNumber();
-      employee.code = randomCode;
-      await Employee.create(employee);
+      user.code = randomCode;
+
+      await User.updateOne({ email }, { $set: { code: randomCode } });
 
       await sendEmail(
-        req.body.email,
-        "Email verification",
-        `the code is : ${randomCode}`
+          req.body.email,
+          "Email verification",
+          `the code is : ${randomCode}`
       );
 
       res.status(200).json({
-        message: "sended",
+        message: "Email with reset code has been sent",
       });
     }
   } catch (error) {
@@ -142,19 +120,20 @@ export async function sendPasswordResetCode(req, res) {
 export async function resetEmployeePassword(request, response) {
   const { email, code, newPassword } = request.body;
 
-  const employee = await Employee.findOne({ email });
+  const user = await User.findOne({ email });
 
-  if (!employee)
-    return response.status(404).json({ message: "Employee not found" });
+  if (!user)
+    return response.status(404).json({ message: "user not found" });
 
-  if (employee.code !== code)
+  if (user.code !== code)
     return response.status(400).json({ message: "Reset code is invalid" });
 
   const hashedPassword = await bcrypt.hashSync(newPassword, 10);
 
-  await Employee.updateOne({ email }, { $set: { password: hashedPassword } });
+  await User.updateOne({ email }, { $set: { password: hashedPassword } });
 
   return response.status(200).json({
     message: "Password has been updated successfully",
   });
+
 }

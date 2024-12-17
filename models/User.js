@@ -31,6 +31,10 @@ const UserShema = new mongoose.Schema(
       type: String,
       required: true,
     },
+      code:{
+          type:Number,
+          required:false,
+      },
   },
   { discriminatorKey: "role" }
 );
