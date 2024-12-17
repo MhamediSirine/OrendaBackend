@@ -4,7 +4,7 @@ import User from "./User.js";
 export const Admin = User.discriminator('admin', new mongoose.Schema({
     experience:{
         type:String,
-        required:true
+        required:false
     }
 }))
 
